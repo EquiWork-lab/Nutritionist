@@ -39,6 +39,23 @@ With `PAYMENT_PROVIDER=mock` you can click through the full subscription flow
 2. Run [`supabase/schema.sql`](./supabase/schema.sql) in the SQL editor.
 3. Copy the URL + anon key + service-role key into `.env.local`.
 
+## What's wired
+
+- **Auth** — Supabase magic-link login (`/login` → `/auth/callback`), session
+  refresh via `middleware.ts`, protected `/dashboard`, sign-out.
+- **Mini-CRM** — `/dashboard` shows stat tiles (contacts, active, leads, MRR),
+  an add-client form, the clients table, and a subscriptions/orders table.
+- **Lead capture** — the landing contact form writes a `lead` to Supabase.
+- **Payments** — swappable layer: `mock`, real **bePaid** (JSON API, recurring
+  tokenization), real **WEBPAY** (signed form-POST via `/api/pay/webpay`,
+  SHA1 request signature + MD5 notification verification).
+- **Persistence** — checkout writes a pending order; the webhook flips it to
+  active and stores the recurring token.
+
+> Supabase Auth: in the Supabase dashboard add your deployment URL (and
+> `http://localhost:3000`) under Authentication → URL Configuration → Redirect
+> URLs, including `/auth/callback`.
+
 ## Enable real payments (bePaid)
 
 1. Set `PAYMENT_PROVIDER=bepaid`, keep `PAYMENT_MODE=test` for sandbox.

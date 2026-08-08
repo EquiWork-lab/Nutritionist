@@ -1,23 +1,34 @@
 import { NextResponse } from "next/server";
 import { getPaymentProvider } from "@/lib/payments";
+import { createAdminClient, isAdminConfigured } from "@/lib/supabase/admin";
+import type { PaymentEvent } from "@/lib/payments/types";
 
 export const runtime = "nodejs";
 
 /**
  * Payment provider webhook / notification endpoint.
- * The active provider verifies + normalizes the request into a PaymentEvent.
- *
- * In a full build, on status === "succeeded" you would:
- *   - mark the subscription/order active in Supabase
- *   - store recurringToken for future auto-charges
- *   - (optionally) issue the НПД receipt / send confirmation email
+ * The active provider verifies + normalizes the request into a PaymentEvent,
+ * then we persist the result to Supabase (if configured).
  */
-async function process(req: Request) {
+async function process(req: Request): Promise<PaymentEvent> {
   const provider = getPaymentProvider();
   const event = await provider.handleWebhook(req);
 
-  // TODO: persist to Supabase using SUPABASE_SERVICE_ROLE_KEY.
-  // await markOrderPaid(event.orderId, event.status, event.recurringToken)
+  if (isAdminConfigured() && event.orderId) {
+    try {
+      const admin = createAdminClient();
+      await admin
+        .from("subscriptions")
+        .update({
+          status: event.status === "succeeded" ? "active" : "failed",
+          provider_ref: event.providerRef ?? null,
+          recurring_token: event.recurringToken ?? null,
+        })
+        .eq("order_id", event.orderId);
+    } catch {
+      // non-fatal
+    }
+  }
 
   return event;
 }
