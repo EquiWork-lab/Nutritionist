@@ -1,0 +1,31 @@
+# Render blueprint. Lets the project deploy on Render (free web service) with
+# one click, as an alternative to Vercel. Set the env vars in the Render
+# dashboard (do NOT commit real keys). Same codebase, different host.
+services:
+  - type: web
+    name: nutritionist
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: NEXT_PUBLIC_BRAND_NAME
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: PAYMENT_PROVIDER
+        value: mock
+      - key: PAYMENT_MODE
+        value: test
+      - key: BEPAID_SHOP_ID
+        sync: false
+      - key: BEPAID_SECRET_KEY
+        sync: false
+      - key: BEPAID_WEBHOOK_SECRET
+        sync: false

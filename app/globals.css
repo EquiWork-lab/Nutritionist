@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+/* Brand tokens — editorial / Scandinavian wellness / premium consulting.
+   Milky warm background, graphite text, one muted natural accent (sage). */
+@theme {
+  --color-cream: #f6f3ee;
+  --color-graphite: #24221f;
+  --color-sage: #7c8a6f;
+  --color-sage-dark: #5f6c54;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html {
+  background-color: var(--color-cream);
+  color: var(--color-graphite);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
